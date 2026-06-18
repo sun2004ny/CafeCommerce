@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
-import { Eye, EyeOff, ShoppingBag, Mail, Lock, ArrowRight } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, ArrowRight } from 'lucide-react';
 import toast from 'react-hot-toast';
+import AuthLogo from '../components/auth/AuthLogo.jsx';
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -41,26 +42,18 @@ export default function LoginPage() {
     <div className="min-h-screen bg-linear-to-br from-gray-900 via-gray-800 to-gray-900 flex">
       {/* Left Panel */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden flex-col min-h-screen p-12">
-        <div className="absolute inset-0 bg-linear-to-br from-orange-600/10 via-gray-800/50 to-gray-900" />
-        <div className="absolute inset-0" style={{
-          backgroundImage: `radial-gradient(circle at 60% 40%, rgba(249,115,22,0.15) 0%, transparent 70%),
-                          radial-gradient(circle at 20% 80%, rgba(249,115,22,0.08) 0%, transparent 50%)`
-        }} />
+        <div className="absolute inset-0 login-ambient-overlay" />
+        <div className="absolute inset-0 login-ambient-radials" />
         <div className="absolute inset-0 bg-black/20" />
 
         {/* Logo — pinned to top */}
-        <div className="relative z-10 flex items-center gap-3 shrink-0">
-          <div className="w-12 h-12 bg-linear-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg shadow-orange-500/25">
-            <ShoppingBag size={24} className="text-white" />
-          </div>
-          <span className="text-3xl font-black text-white leading-tight">CaféCommerce</span>
-        </div>
+        <AuthLogo className="relative z-10" />
 
         {/* Hero copy — directly below logo */}
         <div className="relative z-10 max-w-lg mt-10">
           <h1 className="text-5xl lg:text-6xl font-black leading-tight mb-6 text-white">
             Your personal<br />
-            <span className="bg-linear-to-r from-orange-400 to-orange-500 bg-clip-text text-transparent">shopping hub</span>
+            <span className="rainbow-gradient-text">shopping hub</span>
           </h1>
           <p className="text-lg lg:text-xl text-gray-300 max-w-md leading-relaxed">
             Browse thousands of products, manage your cart, and track your profile — all in one beautiful dashboard.
@@ -69,15 +62,10 @@ export default function LoginPage() {
       </div>
 
       {/* Right Panel */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-12 relative">
+      <div className="w-full lg:w-1/2 flex items-start lg:items-center justify-center min-h-screen p-4 sm:p-6 lg:p-8 relative overflow-y-auto">
         <div className="absolute inset-0 bg-linear-to-br from-gray-900/50 to-gray-800/30 backdrop-blur-3xl" />
-        <div className="w-full max-w-md animate-fade-in relative z-10">
-          <div className="flex items-center gap-3 mb-8 lg:hidden">
-            <div className="w-10 h-10 bg-linear-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg">
-              <ShoppingBag size={18} className="text-white" />
-            </div>
-            <span className="text-xl font-bold text-white">CaféCommerce</span>
-          </div>
+        <div className="w-full max-w-md animate-fade-in relative z-10 pt-4 pb-6 lg:py-6">
+          <AuthLogo mobile className="mb-8" />
 
           <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl">
             <h2 className="text-4xl font-bold mb-2" style={{ color: 'white !important', background: 'none !important', WebkitBackgroundClip: 'unset !important', backgroundClip: 'unset !important' }}>Welcome back</h2>
@@ -125,13 +113,13 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              <button type="submit" disabled={loading} className="w-full py-4 bg-linear-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 disabled:from-gray-600 disabled:to-gray-700 text-white font-semibold rounded-2xl shadow-lg shadow-orange-500/25 hover:shadow-xl hover:shadow-orange-500/30 transition-all duration-300 flex items-center justify-center gap-3 mt-6">
+              <button type="submit" disabled={loading} className="w-full py-4 rainbow-gradient-btn text-gray-900 font-bold rounded-2xl flex items-center justify-center gap-3 mt-6">
                 {loading ? (
-                  <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <div className="w-6 h-6 border-2 border-gray-900/30 border-t-gray-900 rounded-full animate-spin" />
                 ) : (
                   <>
                     <span>Sign In</span>
-                    <ArrowRight size={20} />
+                    <ArrowRight size={20} className="text-gray-900" />
                   </>
                 )}
               </button>
@@ -139,8 +127,13 @@ export default function LoginPage() {
           </div>
 
           <p className="text-center text-gray-400 mt-8 text-sm">
-            Don't have an account?{' '}
-            <Link to="/register"  className="font-black leading-tight p-4" style={{ color: 'white !important' }}>Create one</Link>
+            No account yet?{' '}
+            <Link
+              to="/register"
+              className="font-semibold bg-linear-to-r from-orange-400 via-pink-400 to-purple-400 bg-clip-text text-transparent"
+            >
+              Create an account
+            </Link>
           </p>
 
           {/* Demo credentials hint */}

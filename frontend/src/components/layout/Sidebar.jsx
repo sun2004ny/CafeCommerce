@@ -46,7 +46,7 @@ export default function Sidebar({ mobileOpen, onClose }) {
         {/* Logo */}
         <div className="flex items-center justify-between p-6 border-b border-white/10">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-linear-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg shadow-orange-500/25">
+            <div className="w-10 h-10 rainbow-gradient-bg rounded-2xl flex items-center justify-center rainbow-glow-shadow">
               <ShoppingBag size={20} className="text-white" />
             </div>
             <span className="font-bold text-xl bg-linear-to-r from-white to-gray-300 bg-clip-text text-transparent">CaféCommerce</span>
@@ -59,11 +59,11 @@ export default function Sidebar({ mobileOpen, onClose }) {
         {/* User info */}
         <div className="p-5 border-b border-white/10">
           <div className="flex items-center gap-4">
-            <div className="relative">
+            <div className="relative rainbow-avatar-ring">
               <img
                 src={user?.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(user?.name || 'U')}`}
                 alt="avatar"
-                className="w-12 h-12 rounded-2xl object-cover border-2 border-orange-500/30"
+                className="w-12 h-12 rounded-2xl object-cover block"
               />
               <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-gray-900" />
             </div>
@@ -82,19 +82,23 @@ export default function Sidebar({ mobileOpen, onClose }) {
               to={to}
               onClick={onClose}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group ${
-                  isActive 
-                    ? 'bg-orange-500/15 text-orange-400 border border-orange-500/30' 
+                `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${
+                  isActive
+                    ? 'sidebar-nav-active'
                     : 'text-gray-400 hover:text-white hover:bg-white/10'
                 }`
               }
             >
-              <Icon size={20} className="shrink-0" />
-              <span  className="font-semibold text-sm leading-snug flex-1 line-clamp-2">{label}</span>
-              {badge > 0 && (
-                <span className="bg-orange-500 text-white text-xs font-bold px-2 py-1 rounded-full min-w-[20px] text-center">
-                  {badge > 99 ? '99+' : badge}
-                </span>
+              {({ isActive }) => (
+                <>
+                  <Icon size={20} className={`shrink-0 ${isActive ? 'text-pink-300' : ''}`} />
+                  <span className={`font-semibold text-sm leading-snug flex-1 line-clamp-2 ${isActive ? 'rainbow-gradient-text' : ''}`}>{label}</span>
+                  {badge > 0 && (
+                    <span className="rainbow-gradient-bg text-gray-900 text-xs font-bold px-2 py-1 rounded-full min-w-[20px] text-center">
+                      {badge > 99 ? '99+' : badge}
+                    </span>
+                  )}
+                </>
               )}
             </NavLink>
           ))}
