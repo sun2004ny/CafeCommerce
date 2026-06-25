@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
+import { env } from '../config/env.js';
 
-const API_BASE = 'https://dummyjson.com/products';
+const DUMMY_BASE = 'https://dummyjson.com/products';
 const PAGE_LIMIT = 12;
 
 export function useProducts() {
@@ -14,38 +15,84 @@ export function useProducts() {
   const [total, setTotal] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [sortBy, setSortBy] = useState('');
+  const [useFallback, setUseFallback] = useState(false);
 
-  // Fetch categories once
   useEffect(() => {
-    fetch(`${API_BASE}/categories`)
-      .then((r) => r.json())
-      .then((data) => setCategories(data.map((c) => (typeof c === 'string' ? c : c.name || c.slug))))
-      .catch(() => {});
+    const loadCategories = async () => {
+      try {
+        const res = await fetch(`${env.apiUrl}/api/products/categories`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.categories?.length) {
+            setCategories(data.categories);
+            return;
+          }
+        }
+      } catch {
+        /* fallback below */
+      }
+      fetch(`${DUMMY_BASE}/categories`)
+        .then((r) => r.json())
+        .then((data) => setCategories(data.map((c) => (typeof c === 'string' ? c : c.name || c.slug))))
+        .catch(() => {});
+    };
+    loadCategories();
   }, []);
+
+  const fetchFromBackend = async (reset, currentSkip) => {
+    const qs = new URLSearchParams({
+      limit: String(PAGE_LIMIT),
+      skip: String(reset ? 0 : currentSkip),
+    });
+    if (search) qs.set('search', search);
+    if (category) qs.set('category', category);
+    if (sortBy) qs.set('sortBy', sortBy);
+
+    const res = await fetch(`${env.apiUrl}/api/products?${qs}`);
+    if (!res.ok) throw new Error('Backend unavailable');
+    return res.json();
+  };
+
+  const fetchFromDummy = async (reset, currentSkip) => {
+    const currentSkipVal = reset ? 0 : currentSkip;
+    let url;
+    if (search) {
+      url = `${DUMMY_BASE}/search?q=${encodeURIComponent(search)}&limit=${PAGE_LIMIT}&skip=${currentSkipVal}`;
+    } else if (category) {
+      url = `${DUMMY_BASE}/category/${encodeURIComponent(category)}?limit=${PAGE_LIMIT}&skip=${currentSkipVal}`;
+    } else {
+      url = `${DUMMY_BASE}?limit=${PAGE_LIMIT}&skip=${currentSkipVal}`;
+    }
+    if (sortBy) {
+      const [field, order] = sortBy.split('-');
+      url += `&sortBy=${field}&order=${order}`;
+    }
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Failed to fetch products');
+    return res.json();
+  };
 
   const fetchProducts = useCallback(async (reset = false) => {
     setLoading(true);
     setError(null);
     try {
       const currentSkip = reset ? 0 : skip;
-      let url;
+      let data;
 
-      if (search) {
-        url = `${API_BASE}/search?q=${encodeURIComponent(search)}&limit=${PAGE_LIMIT}&skip=${currentSkip}`;
-      } else if (category) {
-        url = `${API_BASE}/category/${encodeURIComponent(category)}?limit=${PAGE_LIMIT}&skip=${currentSkip}`;
+      if (!useFallback) {
+        try {
+          data = await fetchFromBackend(reset, currentSkip);
+          if (!data.products?.length && !search && !category && reset) {
+            setUseFallback(true);
+            data = await fetchFromDummy(reset, currentSkip);
+          }
+        } catch {
+          setUseFallback(true);
+          data = await fetchFromDummy(reset, currentSkip);
+        }
       } else {
-        url = `${API_BASE}?limit=${PAGE_LIMIT}&skip=${currentSkip}`;
+        data = await fetchFromDummy(reset, currentSkip);
       }
-
-      if (sortBy) {
-        const [field, order] = sortBy.split('-');
-        url += `&sortBy=${field}&order=${order}`;
-      }
-
-      const res = await fetch(url);
-      if (!res.ok) throw new Error('Failed to fetch products');
-      const data = await res.json();
 
       const newProducts = data.products || [];
       setTotal(data.total || 0);
@@ -64,15 +111,13 @@ export function useProducts() {
     } finally {
       setLoading(false);
     }
-  }, [skip, search, category, sortBy]);
+  }, [skip, search, category, sortBy, useFallback]);
 
-  // Reset and refetch on filter/search/sort change
   useEffect(() => {
     setSkip(0);
     setProducts([]);
     setHasMore(true);
     fetchProducts(true);
-    // fetchProducts intentionally omitted — only refetch when filters change
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search, category, sortBy]);
 

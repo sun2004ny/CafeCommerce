@@ -2,10 +2,11 @@ import { useState } from 'react';
 import { X, ShoppingBag, CreditCard, Truck, MapPin, Plus, Check } from 'lucide-react';
 import { useCart } from '../context/CartContext.jsx';
 import { env } from '../config/env.js';
+import { placeOrder } from '../api/orders.js';
 import toast from 'react-hot-toast';
 
 export default function CheckoutModal({ isOpen, onClose, totalAmount }) {
-  const { clearCart } = useCart();
+  const { items, clearCart } = useCart();
 
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedAddress, setSelectedAddress] = useState(null);
@@ -78,14 +79,38 @@ export default function CheckoutModal({ isOpen, onClose, totalAmount }) {
   };
 
   // ================= COD PAYMENT =================
-  const handleCODPayment = () => {
+  const handleCODPayment = async () => {
+    if (!selectedAddressData) {
+      toast.error('Please select a delivery address');
+      return;
+    }
+
     setIsProcessing(true);
-    setTimeout(() => {
+    try {
+      await placeOrder({
+        items: items.map((i) => ({
+          id: i.id,
+          productId: i.id,
+          title: i.title,
+          price: i.price,
+          quantity: i.quantity,
+          thumbnail: i.thumbnail,
+        })),
+        paymentMethod: 'cod',
+        subtotal: totalAmount,
+        tax,
+        shipping,
+        total: grandTotal,
+        address: selectedAddressData,
+      });
       clearCart();
-      toast.success("Order placed successfully!");
+      toast.success('Order placed successfully!');
       onClose();
+    } catch (err) {
+      toast.error(err.message || 'Failed to place order');
+    } finally {
       setIsProcessing(false);
-    }, 1500);
+    }
   };
 
   const handleAddAddress = () => {

@@ -1,8 +1,23 @@
 import { Router } from "express";
+import {
+  getCart,
+  addCartItem,
+  updateCartItemHandler,
+  removeCartItem,
+  clearCartHandler,
+  syncCart,
+} from "../controllers/cart.controller.js";
+import { requireAuth } from "../middleware/auth.middleware.js";
 
 const router = Router();
 
-// Reserved for future integration: cart CRUD per authenticated user
-// GET /, POST /items, PATCH /items/:id, DELETE /items/:id
+router.use(requireAuth);
+
+router.get("/", getCart);
+router.post("/sync", syncCart);
+router.post("/items", addCartItem);
+router.patch("/items/:productId", updateCartItemHandler);
+router.delete("/items/:productId", removeCartItem);
+router.delete("/", clearCartHandler);
 
 export default router;

@@ -11,4 +11,6 @@ export const env = {
   databaseUrl: process.env.DATABASE_URL?.trim() || "",
   stripeSecretKey: process.env.STRIPE_SECRET_KEY?.trim() || "",
   jwtSecret: process.env.JWT_SECRET?.trim() || "dev-jwt-secret-change-in-production",
+  adminEmail: (process.env.ADMIN_EMAIL || "ex123@gmail.com").toLowerCase().trim(),
+  adminPassword: process.env.ADMIN_PASSWORD || "123123",
 };

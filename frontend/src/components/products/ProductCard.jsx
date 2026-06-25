@@ -5,8 +5,13 @@ import toast from 'react-hot-toast';
 export default function ProductCard({ product }) {
   const { addItem, isInCart, increaseQty } = useCart();
   const inCart = isInCart(product.id);
+  const outOfStock = product.stockStatus === 'out_of_stock' || product.stock === 0;
 
   const handleAdd = () => {
+    if (outOfStock) {
+      toast.error('This product is out of stock');
+      return;
+    }
     if (inCart) {
       increaseQty(product.id);
       toast.success(`Added another ${product.title.substring(0, 20)}...`);
@@ -66,13 +71,16 @@ export default function ProductCard({ product }) {
           </div>
           <button
             onClick={handleAdd}
+            disabled={outOfStock}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-semibold transition-all active:scale-95
-              ${inCart
+              ${outOfStock
+                ? 'bg-gray-600/30 text-gray-500 cursor-not-allowed'
+                : inCart
                 ? 'bg-green-500/15 text-green-400 border border-green-500/30 hover:bg-green-500/25'
                 : 'bg-brand-500 hover:bg-brand-600 text-white shadow-lg shadow-brand-500/20'
               }`}
           >
-            {inCart ? <><Plus size={14} /> Add more</> : <><ShoppingCart size={14} /> Add</>}
+            {outOfStock ? 'Out of Stock' : inCart ? <><Plus size={14} /> Add more</> : <><ShoppingCart size={14} /> Add</>}
           </button>
         </div>
       </div>

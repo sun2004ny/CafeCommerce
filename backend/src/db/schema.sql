@@ -12,6 +12,14 @@ CREATE TABLE IF NOT EXISTS users (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS coupons (
+  id SERIAL PRIMARY KEY,
+  code VARCHAR(50) UNIQUE NOT NULL,
+  discount_percentage DECIMAL(5, 2) NOT NULL DEFAULT 0,
+  is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
 CREATE TABLE IF NOT EXISTS products (
   id SERIAL PRIMARY KEY,
   title VARCHAR(500) NOT NULL,
@@ -20,12 +28,17 @@ CREATE TABLE IF NOT EXISTS products (
   discount_percentage DECIMAL(5, 2) DEFAULT 0,
   rating DECIMAL(3, 2) DEFAULT 0,
   stock INTEGER DEFAULT 0,
+  stock_status VARCHAR(20) NOT NULL DEFAULT 'in_stock',
+  coupon_code VARCHAR(50) REFERENCES coupons(code) ON DELETE SET NULL,
   brand VARCHAR(255),
   category VARCHAR(255),
   thumbnail TEXT,
   images JSONB DEFAULT '[]'::jsonb,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+ALTER TABLE products ADD COLUMN IF NOT EXISTS stock_status VARCHAR(20) NOT NULL DEFAULT 'in_stock';
+ALTER TABLE products ADD COLUMN IF NOT EXISTS coupon_code VARCHAR(50);
 
 CREATE TABLE IF NOT EXISTS cart_items (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

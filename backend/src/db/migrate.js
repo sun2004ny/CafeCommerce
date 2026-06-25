@@ -3,6 +3,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { env } from "../config/env.js";
 import { getPool, closePool } from "./pool.js";
+import { seedDatabase } from "./seed.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -28,6 +29,8 @@ async function migrate() {
   `);
 
   console.log("Tables:", tables.rows.map((r) => r.table_name).join(", "));
+
+  await seedDatabase();
   await closePool();
 }
 

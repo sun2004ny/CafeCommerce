@@ -7,7 +7,7 @@ import { errorHandler } from "./middleware/errorHandler.js";
 const app = express();
 
 app.use(corsMiddleware);
-app.use(express.json());
+app.use(express.json({ limit: "10mb" }));
 app.use("/api", routes);
 app.use(notFound);
 app.use(errorHandler);
