@@ -2,13 +2,16 @@
   "name": "cafe-commerce",
   "private": true,
   "version": "1.0.0",
-  "description": "CafeCommerce full-stack application",
+  "description": "CaféCommerce full-stack Remix application",
   "scripts": {
     "dev:frontend": "npm run dev --prefix frontend",
     "dev:backend": "npm run dev --prefix backend",
     "build": "npm run build --prefix frontend",
     "lint": "npm run lint --prefix frontend",
+    "start:frontend": "npm run start --prefix frontend",
+    "start:backend": "npm run start --prefix backend",
     "db:migrate": "npm run db:migrate --prefix backend",
+    "typecheck": "npm run typecheck --prefix frontend && npm run typecheck --prefix backend",
     "install:all": "npm install --prefix frontend && npm install --prefix backend"
   }
 }
